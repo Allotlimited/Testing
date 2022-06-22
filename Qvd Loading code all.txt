@@ -1,0 +1,47 @@
+for each vFile in filelist('lib://$(vQVDPath)/*.qvd')
+load
+*
+FROM [$(vFile)]
+(qvd);
+
+load filetime('[vFile)]') as LastLoad,
+'$(vFile)' as QVD,
+QvdTableName('[$(vFile)]') as Table,
+QvdNoOfFields('[$(vFile)]') as NoOfFields,
+QvdCreateTime('[$(vFile)]') as CreateTime,
+FileSize('[$(vFile)]') as FileSize,
+QvdNoOfRecords('[$(vFile)]') as NoOfRecords
+Autogenerate(1);
+next vFile;
+rename table [AUTOGENERATE(1)] to _FileList;
+
+
+
+
+Load tables from qvd
+For i = 0 to NoOfRows('TableList') - 1
+
+ Let vSourceTableName = '[$(manual_data)'&Peek('SourceTableName',$(i),'TableList')&'.qvd]';
+
+ Let vQlikTableName = Peek('QlikTableName',$(i),'TableList') & ':';
+
+$(vQlikTableName)
+
+LOAD
+    Distinct *
+FROM $(vSourceTableName)
+(qvd)
+
+Where Not(Exists(Id));
+
+;
+
+
+Next i
+
+Let i = Null();
+
+Let vSourceTableName = Null();
+
+Let vQlikTableName = Null();
+
